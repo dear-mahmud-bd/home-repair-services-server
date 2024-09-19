@@ -35,14 +35,24 @@ async function run() {
 
         // Database Collection
         const serviceCollection = client.db('RENOXY_DB').collection('all_services');
-        
 
+        // Get all services ...
         app.get('/services', async (req, res) => {
             const cursor = serviceCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
+        // Get specific user services ...
+        app.get('/user-services', async (req, res) => {
+            const userEmail = req.query.user_email;
+            const query = { serviceProviderEmail: userEmail };
+            const cursor = serviceCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Get a specific service ...
         app.get('/services/:_id', async (req, res) => {
             const id = req.params._id;
             if (!ObjectId.isValid(id)) {
@@ -53,6 +63,7 @@ async function run() {
             res.send(result);
         })
 
+        // Add a specific service in database ...
         app.post('/services', async (req, res) => {
             const newService = req.body;
             // console.log(newService);
