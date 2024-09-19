@@ -36,6 +36,14 @@ async function run() {
         // Database Collection
         const serviceCollection = client.db('RENOXY_DB').collection('all_services');
 
+
+        // Get most popular services...
+        app.get('/popular-services', async (req, res) => {
+            const cursor = serviceCollection.find().sort({ serviceTotalOrder: -1 }).limit(4);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
         // Get all services ...
         app.get('/services', async (req, res) => {
             const cursor = serviceCollection.find();
@@ -71,7 +79,14 @@ async function run() {
             res.send(result);
         })
 
-
+        // Delete specific user service ...
+        app.delete('/services/:_id', async (req, res) => {
+            const id = req.params._id;
+            console.log(id);
+            const query = { _id: new ObjectId(id) }
+            const result = await serviceCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
         // Send a ping to confirm a successful connection
