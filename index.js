@@ -1,8 +1,8 @@
 const express = require('express');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config()
 const app = express()
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
@@ -16,6 +16,7 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.augbr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
@@ -31,15 +32,26 @@ async function run() {
 
 
 
-        // 
-        app.get('/mdb', (req, res) => {
-            res.send('Server Connected Successfully with MongoDB')
+
+        // Database Collection
+        const serviceCollection = client.db('RENOXY_DB').collection('all_services');
+        
+
+        app.get('/services', async (req, res) => {
+            const cursor = serviceCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
         })
 
-
-
-
-
+        app.get('/services/:_id', async (req, res) => {
+            const id = req.params._id;
+            if (!ObjectId.isValid(id)) {
+                return res.status(400).send({ message: 'Invalid ID format. ID must be a 24-character hexadecimal string.' });
+            }
+            const query = { _id: new ObjectId(id) };
+            const result = await serviceCollection.findOne(query);
+            res.send(result);
+        })
 
 
 
