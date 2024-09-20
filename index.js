@@ -1,6 +1,7 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000;
@@ -9,7 +10,12 @@ const port = process.env.PORT || 5000;
 
 
 // middleware
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 
@@ -37,6 +43,40 @@ async function run() {
         // Database Collection
         const serviceCollection = client.db('RENOXY_DB').collection('all_services');
         const bookingCollection = client.db('RENOXY_DB').collection('all_bookings');
+
+
+
+
+        
+        // auth related api...
+        // create a token ...
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            // console.log('user for token', user);
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+
+            // res.send({ token });
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
+            }).send({ success: true });
+        })
+
+        // remove token when log-out...
+        app.post('/logout', async (req, res) => {
+            const user = req.body;
+            // console.log('logging out', user);
+            res.clearCookie('token', { maxAge: 0 }).send({ success: true })
+        })
+
+
+
+
+
+
+
+
 
 
         // Get most popular services...
