@@ -33,8 +33,10 @@ async function run() {
 
 
 
+        
         // Database Collection
         const serviceCollection = client.db('RENOXY_DB').collection('all_services');
+        const bookingCollection = client.db('RENOXY_DB').collection('all_bookings');
 
 
         // Get most popular services...
@@ -111,6 +113,29 @@ async function run() {
             const result = await serviceCollection.deleteOne(query);
             res.send(result);
         })
+
+
+
+
+        // Add a specific service in database ...
+        app.post('/bookings', async (req, res) => {
+            const newBooking = req.body;
+            console.log(newBooking);
+            const result = await bookingCollection.insertOne(newBooking);
+            res.send(result);
+        })
+
+        // Get all bookings for service holder ...
+        app.get('/user-bookings', async (req, res) => {
+            const userEmail = req.query.user_email;
+            const query = { serviceHolderEmail: userEmail };
+            const cursor = bookingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+
 
 
         // Send a ping to confirm a successful connection
