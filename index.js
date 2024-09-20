@@ -33,7 +33,7 @@ async function run() {
 
 
 
-        
+
         // Database Collection
         const serviceCollection = client.db('RENOXY_DB').collection('all_services');
         const bookingCollection = client.db('RENOXY_DB').collection('all_bookings');
@@ -126,9 +126,18 @@ async function run() {
         })
 
         // Get all bookings for service holder ...
-        app.get('/user-bookings', async (req, res) => {
+        app.get('/holder-bookings', async (req, res) => {
             const userEmail = req.query.user_email;
             const query = { serviceHolderEmail: userEmail };
+            const cursor = bookingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Get all bookings for service provider ...
+        app.get('/provider-bookings', async (req, res) => {
+            const userEmail = req.query.user_email;
+            const query = { serviceProviderEmail: userEmail };
             const cursor = bookingCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
