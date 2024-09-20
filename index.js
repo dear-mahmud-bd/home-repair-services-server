@@ -88,7 +88,7 @@ async function run() {
             const options = { upsert: true };
             const updatedService = req.body;
             // console.log(updatedService);
-            const spot = {
+            const service = {
                 $set: {
                     serviceProviderName: updatedService.serviceProviderName,
                     // serviceProviderEmail: updatedService.serviceProviderEmail, // No need to email (JWT)
@@ -101,7 +101,7 @@ async function run() {
                     serviceDescription: updatedService.serviceDescription,
                 }
             };
-            const result = await serviceCollection.updateOne(filter, spot, options);
+            const result = await serviceCollection.updateOne(filter, service, options);
             res.send(result);
         })
 
@@ -113,7 +113,6 @@ async function run() {
             const result = await serviceCollection.deleteOne(query);
             res.send(result);
         })
-
 
 
 
@@ -143,6 +142,22 @@ async function run() {
             res.send(result);
         });
 
+        // Update booking status with service provider ...
+        app.patch('/bookings-status/:_id', async (req, res) => {
+            const id = req.params._id;
+            // console.log(id);
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: false };
+            const updatedStatus = req.body;
+            const setStatus = {
+                $set: {
+                    status: updatedStatus.status,
+                }
+            };
+            console.log(updatedStatus.status, setStatus);
+            const result = await bookingCollection.updateOne(filter, setStatus, options);
+            res.send(result);
+        });
 
 
 
