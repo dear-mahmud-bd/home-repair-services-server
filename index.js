@@ -79,6 +79,30 @@ async function run() {
             res.send(result);
         })
 
+        // Update a service from specific user
+        app.put('/services/:_id', async (req, res) => {
+            const id = req.params._id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedService = req.body;
+            // console.log(updatedService);
+            const spot = {
+                $set: {
+                    serviceProviderName: updatedService.serviceProviderName,
+                    // serviceProviderEmail: updatedService.serviceProviderEmail, // No need to email (JWT)
+                    serviceProviderImage: updatedService.serviceProviderImage,
+                    serviceName: updatedService.serviceName,
+                    serviceImage: updatedService.serviceImage,
+                    serviceLocation: updatedService.serviceLocation,
+                    seasonality: updatedService.seasonality,
+                    servicePrice: updatedService.servicePrice,
+                    serviceDescription: updatedService.serviceDescription,
+                }
+            };
+            const result = await serviceCollection.updateOne(filter, spot, options);
+            res.send(result);
+        })
+
         // Delete specific user service ...
         app.delete('/services/:_id', async (req, res) => {
             const id = req.params._id;
