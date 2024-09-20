@@ -48,7 +48,12 @@ async function run() {
 
         // Get all services ...
         app.get('/services', async (req, res) => {
-            const cursor = serviceCollection.find();
+            const serviceName = req.query.service_name;
+            let query = {};
+            if (serviceName) {
+                query.serviceName = { $regex: serviceName, $options: 'i' };
+            }
+            const cursor = serviceCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
         })
